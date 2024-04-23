@@ -1,0 +1,3 @@
+/home/mateusz-krol/Desktop/repos/opengl/build/CMakeFiles/opengl.dir
+/home/mateusz-krol/Desktop/repos/opengl/build/CMakeFiles/edit_cache.dir
+/home/mateusz-krol/Desktop/repos/opengl/build/CMakeFiles/rebuild_cache.dir
