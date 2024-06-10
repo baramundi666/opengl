@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/opengl.dir/display.cpp.o.d"
   "CMakeFiles/opengl.dir/main.cpp.o"
   "CMakeFiles/opengl.dir/main.cpp.o.d"
+  "CMakeFiles/opengl.dir/mesh.cpp.o"
+  "CMakeFiles/opengl.dir/mesh.cpp.o.d"
   "CMakeFiles/opengl.dir/shader.cpp.o"
   "CMakeFiles/opengl.dir/shader.cpp.o.d"
   "opengl"

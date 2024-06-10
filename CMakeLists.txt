@@ -4,6 +4,8 @@ project(opengl)
 set(SOURCES main.cpp display.cpp display.h
         shader.cpp
         shader.h
+        mesh.cpp
+        mesh.h
 )
 add_executable(opengl ${SOURCES})
 
