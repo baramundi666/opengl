@@ -6,6 +6,10 @@ set(SOURCES main.cpp display.cpp display.h
         shader.h
         mesh.cpp
         mesh.h
+        stb_image.c
+        stb_image.h
+        texture.cpp
+        texture.h
 )
 add_executable(opengl ${SOURCES})
 

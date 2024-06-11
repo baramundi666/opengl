@@ -10,12 +10,22 @@
 
 class Vertex {
 public:
-    Vertex(const glm::vec3& pos) {
+    Vertex(const glm::vec3& pos, const glm::vec2& texCoord) {
         this->pos = pos;
+        this->texCoord = texCoord;
     }
+
+    inline glm::vec3* getPos() {return &pos;}
+    inline glm::vec2* getTexCoord() {return &texCoord;}
 protected:
 private:
     glm::vec3 pos;
+    glm::vec2 texCoord;
+};
+
+enum {
+    POSITION_VB,
+    TEXCOORD_VB
 };
 
 class Mesh {
@@ -27,14 +37,9 @@ public:
     virtual ~Mesh();
 protected:
 private:
-    Mesh(const Mesh& other);
-    void operator=(const Mesh& other);
-
-    enum {
-        POSITION_VB,
-
-        NUM_BUFFERS
-    };
+    static const unsigned int NUM_BUFFERS = 2;
+    Mesh(const Mesh& other) {}
+    void operator=(const Mesh& other) {}
 
     GLuint m_vertexArrayObject;
     GLuint m_vertexArrayBuffers[NUM_BUFFERS];
