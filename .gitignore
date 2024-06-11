@@ -1,3 +1,8 @@
+# mine
+.idea/
+build/
+
+
 # Prerequisites
 *.d
 
