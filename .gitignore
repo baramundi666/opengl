@@ -1,7 +1,7 @@
 # mine
 .idea/
 build/
-
+cmake-build-debug/
 
 # Prerequisites
 *.d
