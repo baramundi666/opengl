@@ -1,7 +1,8 @@
 #!/bin/bash
 
-mkdir build
+mkdir -pv build
 cd build || exit
 cmake .. -B .
 make
 ./opengl
+rm opengl

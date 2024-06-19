@@ -10,6 +10,8 @@ set(SOURCES main.cpp display.cpp display.h
         stb_image.h
         texture.cpp
         texture.h
+        tetris.cpp
+        tetris.h
 )
 add_executable(opengl ${SOURCES})
 
