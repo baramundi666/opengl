@@ -10,6 +10,8 @@
 #include <array>
 #include <unistd.h>
 #include <map>
+#include <atomic>
+#include <mutex>
 #include "display.h"
 #include "shader.h"
 #include "mesh.h"
@@ -38,23 +40,31 @@ class Tetris {
 public:
     Tetris();
 
-    void play(Display& display);
+    void play();
 protected:
 private:
-    void inputReact(int input);
+    void handleGraphics();
+    void handleLogic();
+    void handleInput();
+    void handleKeyDown(int input);
     Vertex* currentBlockRepresentation();
     Vertex* bottomVerticesRepresentation(Vertex* bottomVertices, int bottomSize, int positionX, int positionY);
+
     Tetris(const Tetris& other) {}
     void operator=(const Tetris& other) {}
 
 
     std::map<std::pair<int, int>, bool> field;
-    bool hasLost = false;
+    std::atomic<bool> isRunning{true};
+    std::mutex mutex_;
+    Vertex* bottomVertices;
+    int bottomCount = 0;
     Block currentBlock;
     Block nextBlock;
     int positionY = 10;
     int positionX = 0;
-    Orientation orientation;
+    Orientation orientation = NORTH;
+    Display* display_;
 };
 
 

@@ -3,10 +3,8 @@
 #include "tetris.h"
 
 int main() {
-    Display display(600, 800, "Tetris");
-
     Tetris tetris;
-    tetris.play(display);
+    tetris.play();
 
     return 0;
 }

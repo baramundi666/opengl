@@ -2,85 +2,21 @@
 // Created by mateusz-krol on 6/19/24.
 //
 
+#include <thread>
 #include "tetris.h"
 
-Tetris::Tetris() {
-    srand (time(NULL));
-    currentBlock = Block(rand() % 7);
-    nextBlock = Block(rand() % 7);
-
-    for(int i=-5;i<5;i++) {
-        for(int j=-9; j<11;j++) {
-            field[{i, j}] = false;
-        }
-    }
-}
-
-
-void Tetris::play(Display& display) {
+void Tetris::handleGraphics() {
+    Display display(600, 800, "Tetris");
+    display_ = &display;
     Shader shader("../res/basicShader");
     Texture texture("../res/imgs/red.jpg");
 
-    SDL_Event event;
-    bool isRunning = true;
 
-    Vertex* bottomVertices;
-    int bottomCount = 0;
-
-    std::clock_t start, now;
-    start = std::clock();
-    double ticks = 0;
-    double time_passed;
+    while(!isRunning);
 
     while(isRunning) {
-        for(int i=-5;i<5;i++) {
-            if(field[{i, 10}]) {
-                hasLost = true;
-                isRunning = false;
-            }
-        }
-        display.Clear(0.0f, 0.25f, 0.3f, 1.0f);
-
-        while(SDL_PollEvent(&event)) {
-            switch(event.type) {
-                case SDL_QUIT:
-                    isRunning = false;
-                    break;
-
-                case SDL_KEYDOWN:
-                    inputReact(event.key.keysym.sym);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        if(positionY == -8 ||
-                field[{positionX+1, positionY}]  ||
-                field[{positionX, positionY}]) {
-
-            field[{positionX+1, positionY+2}] = true;
-            field[{positionX, positionY+2}] = true;
-            field[{positionX+1, positionY+1}] = true;
-            field[{positionX, positionY+1}] = true;
-
-
-
-            bottomVertices = bottomVerticesRepresentation(bottomVertices, bottomCount, positionX, positionY);
-            bottomCount+=1;
-
-            currentBlock = Block(rand() % 7);
-            positionY = 10;
-            positionX = 0;
-        }
-
-        now = std::clock();
-        time_passed = 100 * (now - start) / (double) CLOCKS_PER_SEC;
-        if(time_passed > ticks+1) {
-            if(positionY>-8) positionY-=1;
-            ticks++;
-        }
+        printf("%d\n", positionY);
+        display_->Clear(0.0f, 0.25f, 0.3f, 1.0f);
 
         auto currentVertices = currentBlockRepresentation();
 
@@ -94,13 +30,102 @@ void Tetris::play(Display& display) {
             bottomMesh.Draw();
         }
 
-        display.Update();
+        display_->Update();
     }
-
-    if(hasLost) printf("Game over!\n");
 }
 
-void Tetris::inputReact(int input) {
+void Tetris::handleLogic() {
+    std::clock_t start, now;
+    start = std::clock();
+    double ticks = 0;
+    double time_passed;
+
+    while(!isRunning);
+
+    while(isRunning) {
+        mutex_.lock();
+        for(int i=-5;i<5;i++) {
+            if(field[{i, 10}]) {
+                isRunning = false;
+            }
+        }
+        mutex_.unlock();
+
+        mutex_.lock();
+        handleInput();
+        mutex_.unlock();
+
+        mutex_.lock();
+        if(positionY == -8 ||
+           field[{positionX+1, positionY}]  ||
+           field[{positionX, positionY}]) {
+
+            field[{positionX+1, positionY+2}] = true;
+            field[{positionX, positionY+2}] = true;
+            field[{positionX+1, positionY+1}] = true;
+            field[{positionX, positionY+1}] = true;
+
+            bottomVertices = bottomVerticesRepresentation(bottomVertices, bottomCount, positionX, positionY);
+            bottomCount+=1;
+
+            currentBlock = Block(rand() % 7);
+            positionY = 10;
+            positionX = 0;
+        }
+        mutex_.unlock();
+
+        now = std::clock();
+        time_passed = (now - start) / (double) CLOCKS_PER_SEC;
+        if(time_passed > ticks+1) {
+            mutex_.lock();
+            if(positionY>-8) positionY-=1;
+            ticks++;
+            mutex_.unlock();
+        }
+
+    }
+}
+
+Tetris::Tetris() {
+    srand(time(NULL));
+    currentBlock = Block(rand() % 7);
+    nextBlock = Block(rand() % 7);
+
+    for(int i=-5;i<5;i++) {
+        for(int j=-9; j<11;j++) {
+            field[{i, j}] = false;
+        }
+    }
+}
+
+
+void Tetris::play() {
+    std::thread graphicsThread(&Tetris::handleGraphics, this);
+    std::thread logicThread(&Tetris::handleLogic, this);
+    graphicsThread.join();
+    logicThread.join();
+}
+
+void Tetris::handleInput() {
+    SDL_Event event;
+
+    while(SDL_PollEvent(&event)) {
+        switch(event.type) {
+            case SDL_QUIT:
+                isRunning = false;
+                break;
+
+            case SDL_KEYDOWN:
+                handleKeyDown(event.key.keysym.sym);
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+void Tetris::handleKeyDown(int input) {
     switch(input) {
         case SDLK_UP:
             while(positionY > -8 &&
