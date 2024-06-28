@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 project(opengl)
 
-set(SOURCES main.cpp display.cpp display.h
-        shader.cpp
-        shader.h
-        mesh.cpp
-        mesh.h
-        stb_image.c
-        stb_image.h
-        texture.cpp
-        texture.h
-        tetris.cpp
-        tetris.h
+set(SOURCES
+        main.cpp
+        display.cpp display.h
+        shader.cpp shader.h
+        mesh.cpp mesh.h
+        stb_image.c stb_image.h
+        texture.cpp texture.h
+        tetris.cpp tetris.h
+        block.cpp block.h
 )
 add_executable(opengl ${SOURCES})
 

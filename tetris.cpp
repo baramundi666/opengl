@@ -15,10 +15,8 @@ void Tetris::handleGraphics() {
     while(!isRunning);
 
     while(isRunning) {
-        printf("%d\n", positionY);
-        display_->Clear(0.0f, 0.25f, 0.3f, 1.0f);
 
-        auto currentVertices = currentBlockRepresentation();
+        display_->Clear(0.0f, 0.25f, 0.3f, 1.0f);
 
         Mesh currentMesh(currentVertices, 24);
 
@@ -43,20 +41,20 @@ void Tetris::handleLogic() {
     while(!isRunning);
 
     while(isRunning) {
-        mutex_.lock();
-        for(int i=-5;i<5;i++) {
-            if(field[{i, 10}]) {
+
+        for(int i=-width/2;i<width/2;i++) {
+            if(field[{i, height/2}]) {
                 isRunning = false;
             }
         }
-        mutex_.unlock();
 
-        mutex_.lock();
+
         handleInput();
-        mutex_.unlock();
 
-        mutex_.lock();
-        if(positionY == -8 ||
+        currentVertices = currentBlockRepresentation();
+
+
+        if(positionY == -height/2 + 2 ||
            field[{positionX+1, positionY}]  ||
            field[{positionX, positionY}]) {
 
@@ -68,31 +66,30 @@ void Tetris::handleLogic() {
             bottomVertices = bottomVerticesRepresentation(bottomVertices, bottomCount, positionX, positionY);
             bottomCount+=1;
 
-            currentBlock = Block(rand() % 7);
+            currentBlock = nextBlock;
+            nextBlock = Block(static_cast<Type>(rand_(mt)));
             positionY = 10;
             positionX = 0;
         }
-        mutex_.unlock();
 
         now = std::clock();
         time_passed = (now - start) / (double) CLOCKS_PER_SEC;
         if(time_passed > ticks+1) {
-            mutex_.lock();
-            if(positionY>-8) positionY-=1;
+            if(positionY > -height/2 + 2) positionY-=1;
             ticks++;
-            mutex_.unlock();
         }
 
     }
 }
 
-Tetris::Tetris() {
-    srand(time(NULL));
-    currentBlock = Block(rand() % 7);
-    nextBlock = Block(rand() % 7);
+Tetris::Tetris() : rd{}, mt{rd()}, rand_{0, 6} {
 
-    for(int i=-5;i<5;i++) {
-        for(int j=-9; j<11;j++) {
+    currentBlock = Block(static_cast<Type>(rand_(mt)));
+    nextBlock = Block(static_cast<Type>(rand_(mt)));
+
+
+    for(int i=-width/2;i<width/2;i++) {
+        for(int j=-height/2 + 1; j<height/2 + 1;j++) {
             field[{i, j}] = false;
         }
     }
@@ -128,50 +125,24 @@ void Tetris::handleInput() {
 void Tetris::handleKeyDown(int input) {
     switch(input) {
         case SDLK_UP:
-            while(positionY > -8 &&
+            while(positionY > -height/2 + 2 &&
             !field[{positionX, positionY}] &&
             !field[{positionX+1, positionY}]) positionY-=1;
             break;
         case SDLK_DOWN:
-            if(positionY > -8) positionY-=1;
+            if(positionY > -height/2 + 2) positionY-=1;
             break;
         case SDLK_RIGHT:
-            if(positionX<3) positionX+=1;
+            if(positionX < width/2 - 1) positionX+=1;
             break;
         case SDLK_LEFT:
-            if(positionX>-5) positionX-=1;
+            if(positionX > -width/2) positionX-=1;
             break;
         case SDLK_g:
-            switch(orientation) {
-                case NORTH:
-                    orientation = EAST;
-                    break;
-                case EAST:
-                    orientation = SOUTH;
-                    break;
-                case SOUTH:
-                    orientation = WEST;
-                    break;
-                case WEST:
-                    orientation = NORTH;
-                    break;
-            }
+            currentBlock.rotateR();
             break;
         case SDLK_f:
-            switch(orientation) {
-                case NORTH:
-                    orientation = WEST;
-                    break;
-                case WEST:
-                    orientation = SOUTH;
-                    break;
-                case SOUTH:
-                    orientation = EAST;
-                    break;
-                case EAST:
-                    orientation = NORTH;
-                    break;
-            }
+            currentBlock.rotateL();
             break;
         default:
             break;
